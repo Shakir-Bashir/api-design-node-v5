@@ -1,13 +1,13 @@
 import { env as loadEnv } from 'custom-env'
 import { z } from 'zod'
 
-process.env.APP_STAGE = process.env.APP_STAGE || 'dev'
+process.env.APP_STAGE = process.env.APP_STAGE || 'developement'
 
 const isProduction = process.env.APP_STAGE === 'production'
-const isDevelopment = process.env.APP_STAGE === 'dev'
-const isTesting = process.env.APP_STAGE === 'test'
+const isDevelopement = process.env.APP_STAGE === 'developement'
+const isTesting = process.env.APP_STAGE === 'tes'
 
-if (isDevelopment) {
+if (isDevelopement) {
   loadEnv()
 } else if (isTesting) {
   loadEnv('test')
@@ -15,15 +15,17 @@ if (isDevelopment) {
 
 const envSchema = z.object({
   NODE_ENV: z
-    .enum(['development', 'test', 'production'])
-    .default('development'),
+    .enum(['developement', 'test', 'production'])
+    .default('developement'),
 
-  APP_STAGE: z.enum(['dev', 'test', 'production']).default('dev'),
+  APP_STAGE: z
+    .enum(['developement', 'test', 'production'])
+    .default('developement'),
 
   PORT: z.coerce.number().positive().default(3000),
   DATABASE_URL: z.string().startsWith('postgresql://'),
   JWT_SECRET: z.string().min(32, 'Must be 32 chars long'),
-  JWT_EXPIRES_IN: z.string().default('7d'),
+  JWT_EXPIRES: z.string().default('7d'),
   BCRYPT_ROUNDS: z.coerce.number().min(10).max(20).default(12),
 })
 
@@ -39,9 +41,8 @@ try {
 
     e.issues.forEach((err) => {
       const path = err.path.join('.')
-      console.log(`${path}: ${err.message}`)
+      console.log(`${err.message}`)
     })
-
     process.exit(1)
   }
 
@@ -49,7 +50,7 @@ try {
 }
 
 export const isProd = () => env.APP_STAGE === 'production'
-export const isDev = () => env.APP_STAGE === 'dev'
+export const isDev = () => env.APP_STAGE === 'developement'
 export const isTest = () => env.APP_STAGE === 'test'
 
 export { env }
